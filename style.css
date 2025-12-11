@@ -1,0 +1,92 @@
+body{
+  background: linear-gradient(350deg,blue,pink);
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.headingText{
+  border-bottom: 2px solid;
+}
+.chooseSide{
+  display: flex;
+  justify-content: center;
+  background: white;
+  border-radius: 5px;
+  margin: 100px;
+  height:90px;
+  transition: 1.3 ease;
+}
+.heading,.whoAreYou{
+  text-align: center;
+  font-size: 50px;
+}
+.chooseX{
+  
+  width:50%;
+  border-radius: 5px;
+  transition: 0.5s ease;
+  font-size: 20px;
+}
+.chooseO{
+  width:50%;
+  border-radius: 5px;
+  transition: 0.5s ease;
+  font-size: 20px;
+}
+.playTable {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  height: 100vh;
+  margin-top: 100px;
+  
+}
+
+.playTable.show {
+  opacity: 1;
+}
+table{
+  width:500px;
+  height: 500px;
+  text-align: center;
+}
+td{
+  border: 2px solid;
+  border-radius: 20px;
+  width: 33.33%;
+  height: 33.33%;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 50px;
+  border: 2px solid;
+  border-radius: 20px;
+   text-align: center; 
+}
+
+.bodyWrapper{
+  display: flex;
+  justify-content: center;
+  flex-grow: 1;
+}
+
+footer {
+  margin-top: auto;
+  text-align: center;
+}
+.difficulty{
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  gap: 20px;
+}
+#low,#medium,#advanced,#twoPlayers{
+  border-radius: 10px;
+  width:400px;
+  height: 70px;
+  font-size: 50px;
+  
+}
