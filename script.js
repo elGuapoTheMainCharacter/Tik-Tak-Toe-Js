@@ -1,3 +1,4 @@
+
 let sideChosen = false;
 let changeColor = document.getElementById("chooseSide");
 let playTable = document.getElementById("playTable");
@@ -32,12 +33,21 @@ boxes.forEach(box => {
     if (sideChosen && playerTurn) {
       if (this.innerText === '') {
         this.innerText = playerSide;
-        playerTurn = false;
         if (checkWin(playerSide)) {
           alert(`Player ${playerSide} wins!`);
-          resetGame();
-        } else if (gameMode !== 'twoPlayers') {
-          setTimeout(robotMove, 500); // add a delay before the bot's move
+          setTimeout(resetGame, 1000);
+        } else if (isBoardFull()) {
+          alert("It's a draw!");
+          setTimeout(resetGame, 1000);
+        } else {
+          if (gameMode === 'twoPlayers') {
+            playerTurn = !playerTurn; // switch player
+            playerSide = playerSide === 'X' ? 'O' : 'X'; // switch side
+            whoAreYou.innerHTML = `Player ${playerSide}'s turn`;
+          } else {
+            playerTurn = false;
+            setTimeout(robotMove, 500); // add a delay before the bot's move
+          }
         }
       }
     }
@@ -88,6 +98,7 @@ document.getElementById('advanced').addEventListener('click', () => {
 
 document.getElementById('twoPlayers').addEventListener('click', () => {
   gameMode = 'twoPlayers';
+  playerSide = 'X';
   startGame();
 });
 
@@ -128,8 +139,11 @@ function lowBotMove(){
     let randomBox = emptyBoxes[randomIndex];
     randomBox.innerText = botSide;
     if (checkWin(botSide)) {
-      alert(`Bot ${botSide} wins!`);
-      resetGame();
+      setTimeout(() => alert(`Bot ${botSide} wins!`), 300);
+      setTimeout(resetGame, 1000);
+    } else if(isBoardFull()){
+      setTimeout(() => alert("It's a draw!"), 300);
+      setTimeout(resetGame, 1000);
     } else {
       playerTurn = true; // switch back to player's turn
     }
@@ -137,87 +151,93 @@ function lowBotMove(){
 }
 
 function mediumBotMove(){
-  //medium bot, sometimes wins, sometimes loses
-  let bestScore = -Infinity;
-  let bestMove;
-  for (let i = 0; i < boxes.length; i++) {
-    if (boxes[i].innerText === '') {
+  //medium bot, tries to win or block player's win
+  for(let i = 0; i < boxes.length; i++){
+    if(boxes[i].innerText === ''){
       boxes[i].innerText = botSide;
-      let score = minimax(boxes, 0, false);
-      boxes[i].innerText = '';
-      if (score > bestScore) {
-        bestScore = score;
-        bestMove = i;
+      if(checkWin(botSide)){
+        setTimeout(() => alert(`Bot ${botSide} wins!`), 300);
+        setTimeout(resetGame, 1000);
+        return;
       }
+      boxes[i].innerText = '';
     }
   }
-  boxes[bestMove].innerText = botSide;
-  if (checkWin(botSide)) {
-    alert(`Bot ${botSide} wins!`);
-    resetGame();
-  } else {
-    playerTurn = true; // switch back to player's turn
+  for(let i = 0; i < boxes.length; i++){
+    if(boxes[i].innerText === ''){
+      boxes[i].innerText = playerSide;
+      if(checkWin(playerSide)){
+        boxes[i].innerText = botSide;
+        playerTurn = true;
+        return;
+      }
+      boxes[i].innerText = '';
+    }
+  }
+  let emptyBoxes = [];
+  boxes.forEach(box => {
+    if (box.innerText === '') {
+      emptyBoxes.push(box);
+    }
+  });
+  if (emptyBoxes.length > 0) {
+    let randomIndex = Math.floor(Math.random() * emptyBoxes.length);
+    let randomBox = emptyBoxes[randomIndex];
+    randomBox.innerText = botSide;
+    if(isBoardFull()){
+      setTimeout(() => alert("It's a draw!"), 300);
+      setTimeout(resetGame, 1000);
+    } else {
+      playerTurn = true; // switch back to player's turn
+    }
   }
 }
 
 function advancedBotMove(){
-  //advanced bot, never loses
-  let bestScore = -Infinity;
-  let bestMove;
-  for (let i = 0; i < boxes.length; i++) {
-    if (boxes[i].innerText === '') {
+  //advanced bot, tries to win or block player's win, and play center
+  if(boxes[4].innerText === ''){
+    boxes[4].innerText = botSide;
+    playerTurn = true;
+    return;
+  }
+  for(let i = 0; i < boxes.length; i++){
+    if(boxes[i].innerText === ''){
       boxes[i].innerText = botSide;
-      let score = minimax(boxes, 0, false);
+      if(checkWin(botSide)){
+        setTimeout(() => alert(`Bot ${botSide} wins!`), 300);
+        setTimeout(resetGame, 1000);
+        return;
+      }
       boxes[i].innerText = '';
-      if (score > bestScore) {
-        bestScore = score;
-        bestMove = i;
-      }
     }
   }
-  boxes[bestMove].innerText = botSide;
-  if (checkWin(botSide)) {
-    alert(`Bot ${botSide} wins!`);
-    resetGame();
-  } else if(isBoardFull()){
-    alert("It's a draw!");
-    resetGame();
-  } else {
-    playerTurn = true; // switch back to player's turn
-  }
-}
-
-function minimax(boxes, depth, isMaximizing) {
-  if (checkWin(botSide)) {
-    return 1;
-  } else if (checkWin(playerSide)) {
-    return -1;
-  } else if (isBoardFull()) {
-    return 0;
-  }
-
-  if (isMaximizing) {
-    let bestScore = -Infinity;
-    for (let i = 0; i < boxes.length; i++) {
-      if (boxes[i].innerText === '') {
+  for(let i = 0; i < boxes.length; i++){
+    if(boxes[i].innerText === ''){
+      boxes[i].innerText = playerSide;
+      if(checkWin(playerSide)){
         boxes[i].innerText = botSide;
-        let score = minimax(boxes, depth + 1, false);
-        boxes[i].innerText = '';
-        bestScore = Math.max(score, bestScore);
+        playerTurn = true;
+        return;
       }
+      boxes[i].innerText = '';
     }
-    return bestScore;
-  } else {
-    let bestScore = Infinity;
-    for (let i = 0; i < boxes.length; i++) {
-      if (boxes[i].innerText === '') {
-        boxes[i].innerText = playerSide;
-        let score = minimax(boxes, depth + 1, true);
-        boxes[i].innerText = '';
-        bestScore = Math.min(score, bestScore);
-      }
+  }
+  let emptyBoxes = [];
+  boxes.forEach(box => {
+    if (box.innerText === '') {
+      emptyBoxes.push(box);
     }
-    return bestScore;
+  });
+  if (emptyBoxes.length > 0) {
+    let randomIndex = Math.floor(Math.random() * emptyBoxes.length);
+    let randomBox = emptyBoxes[randomIndex];
+    randomBox.innerText = botSide;
+    if(isBoardFull()){
+      setTimeout(() => alert("It's a draw!"), 300);
+      setTimeout(resetGame, 1000);
+    } else {
+      playerTurn = true; // switch back to player's turn
+    }
   }
 }
 
@@ -256,5 +276,5 @@ function resetGame() {
   whoAreYou.innerHTML = "Choose Side";
   chooseX.style.background = "white";
   chooseO.style.background = "white";
-  chooseSide.style.display = "block";
+  chooseSide.style.display = "flex";
 }
