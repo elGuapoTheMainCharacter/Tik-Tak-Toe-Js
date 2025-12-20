@@ -277,4 +277,4 @@ function resetGame() {
   chooseX.style.background = "white";
   chooseO.style.background = "white";
   chooseSide.style.display = "flex";
-}
+   }
